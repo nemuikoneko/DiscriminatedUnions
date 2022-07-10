@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscriminatedUnions", "DiscriminatedUnions\DiscriminatedUnions.csproj", "{FF346EEB-AB68-4D22-BB84-82589E58B501}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF346EEB-AB68-4D22-BB84-82589E58B501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF346EEB-AB68-4D22-BB84-82589E58B501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF346EEB-AB68-4D22-BB84-82589E58B501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF346EEB-AB68-4D22-BB84-82589E58B501}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1E523806-5C30-4EDE-8B06-0D55890DD181}
+	EndGlobalSection
+EndGlobal
