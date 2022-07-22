@@ -10,6 +10,8 @@ namespace DiscriminatedUnions
     [Generator]
     public sealed class SourceGenerator : ISourceGenerator
     {
+        private const string UnionAttributeName = "DiscriminatedUnion";
+
         public void Execute(GeneratorExecutionContext context)
         {
             context.Compilation.SyntaxTrees.ToList().ForEach(syntaxTree => GenerateUnions(context, syntaxTree));
@@ -23,18 +25,21 @@ namespace DiscriminatedUnions
         {
             var model = context.Compilation.GetSemanticModel(syntaxTree);
 
-            bool HasUnionInterface(StructDeclarationSyntax structDeclNode)
-            {
-                var structDeclType = model.GetDeclaredSymbol(structDeclNode) ?? throw new Exception("Failed to retrieve type symbol for struct declaration");
-                return structDeclType.Interfaces.Any(i => i.Name == "IDiscriminatedUnion");
-            }
+            static bool HasUnionAttribute(StructDeclarationSyntax structDeclNode)
+                => structDeclNode
+                    .DescendantNodes()
+                    .OfType<AttributeSyntax>()
+                    .Select(attrNode => attrNode.Name)
+                    .Select(nameNode => nameNode as IdentifierNameSyntax)
+                    .Select(nameNode => nameNode?.Identifier.ValueText)
+                    .Any(value => value == UnionAttributeName);
 
-            bool IsEligibleUnion(StructDeclarationSyntax structDeclNode)
+            static bool IsEligibleUnion(StructDeclarationSyntax structDeclNode)
             {
                 if (!structDeclNode.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword)))
                     return false;
 
-                if (!HasUnionInterface(structDeclNode))
+                if (!HasUnionAttribute(structDeclNode))
                     return false;
 
                 return true;

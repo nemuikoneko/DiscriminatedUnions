@@ -56,7 +56,7 @@ public class Program
     [Fact]
     public void Debug()
     {
-        var filePath = "CompilableTestFile.cs";
+        var filePath = "../../../CompilableTestFile.cs";
         var compilation = CreateCompilation(new[] { CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)) });
         var generatedCompilation = RunGeneratorAndEnsureNoDiagnostics(compilation);
         throw new Exception("Debugging session ended");
