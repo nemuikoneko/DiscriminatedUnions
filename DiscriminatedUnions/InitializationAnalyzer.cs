@@ -10,10 +10,12 @@ namespace DiscriminatedUnions;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InitializationAnalyzer : DiagnosticAnalyzer
 {
-    public static readonly DiagnosticDescriptor TestDiagnostic = AnalyzerHelper.BuildDiagnosticDescriptor("DU1", "Test"); // TODO Update
+    public static readonly DiagnosticDescriptor DefaultExpressionNotAllowed = AnalyzerHelper.BuildDiagnosticDescriptor(
+        "DU1",
+        "Discriminated union is not allowed to be initialized using a default expression");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(TestDiagnostic);
+        => ImmutableArray.Create(DefaultExpressionNotAllowed);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -43,6 +45,6 @@ public sealed class InitializationAnalyzer : DiagnosticAnalyzer
             .Any();
 
         if (defaultExprTypeIsUnionType)
-            context.ReportDiagnostic(Diagnostic.Create(TestDiagnostic, context.Node.GetLocation()));
+            context.ReportDiagnostic(Diagnostic.Create(DefaultExpressionNotAllowed, context.Node.GetLocation()));
     }
 }
