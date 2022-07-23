@@ -64,11 +64,11 @@ public class Program
         var generatedCompilation = RunGeneratorAndEnsureNoDiagnostics(compilation);
 
         var references = Basic.Reference.Assemblies.NetStandard20.All.ToList();
-        references.Add(MetadataReference.CreateFromFile(typeof(InitializationAnalyzer).Assembly.Location));
+        references.Add(MetadataReference.CreateFromFile(typeof(Analyzer).Assembly.Location));
 
         var generatedCompilationWithAnalyzer = generatedCompilation
             .WithReferences(references)
-            .WithAnalyzers(ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new InitializationAnalyzer()));
+            .WithAnalyzers(ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new Analyzer()));
 
         var diagnostics = await generatedCompilationWithAnalyzer.GetAllDiagnosticsAsync();
 

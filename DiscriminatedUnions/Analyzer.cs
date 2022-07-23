@@ -8,7 +8,7 @@ using System.Linq;
 namespace DiscriminatedUnions;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class InitializationAnalyzer : DiagnosticAnalyzer
+public sealed class Analyzer : DiagnosticAnalyzer
 {
     public static readonly DiagnosticDescriptor DefaultExpressionNotAllowed = AnalyzerHelper.BuildDiagnosticDescriptor(
         "DU1",
