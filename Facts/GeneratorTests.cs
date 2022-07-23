@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using DiscriminatedUnions;
 using Xunit;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Facts;
 
@@ -54,11 +56,22 @@ public class Program
     }
 
     [Fact]
-    public void Debug()
+    public async Task DebugAsync()
     {
         var filePath = "../../../CompilableTestFile.cs";
         var compilation = CreateCompilation(new[] { CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)) });
+
         var generatedCompilation = RunGeneratorAndEnsureNoDiagnostics(compilation);
+
+        var references = Basic.Reference.Assemblies.NetStandard20.All.ToList();
+        references.Add(MetadataReference.CreateFromFile(typeof(InitializationAnalyzer).Assembly.Location));
+
+        var generatedCompilationWithAnalyzer = generatedCompilation
+            .WithReferences(references)
+            .WithAnalyzers(ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new InitializationAnalyzer()));
+
+        var diagnostics = await generatedCompilationWithAnalyzer.GetAllDiagnosticsAsync();
+
         throw new Exception("Debugging session ended");
     }
 }
