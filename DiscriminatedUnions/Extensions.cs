@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DiscriminatedUnions
 {
@@ -37,5 +38,14 @@ namespace DiscriminatedUnions
                 _ => throw new NotImplementedException()
             };
         }
+
+        internal static bool HasUnionAttribute(this StructDeclarationSyntax structDeclNode)
+            => structDeclNode
+                .DescendantNodes()
+                .OfType<AttributeSyntax>()
+                .Select(attrNode => attrNode.Name)
+                .Select(nameNode => nameNode as IdentifierNameSyntax)
+                .Select(nameNode => nameNode?.Identifier.ValueText)
+                .Any(value => value == SourceGenerator.UnionAttributeName);
     }
 }

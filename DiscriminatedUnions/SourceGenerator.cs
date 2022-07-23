@@ -10,7 +10,7 @@ namespace DiscriminatedUnions
     [Generator]
     public sealed class SourceGenerator : ISourceGenerator
     {
-        private const string UnionAttributeName = "DiscriminatedUnion";
+        internal const string UnionAttributeName = "DiscriminatedUnion";
 
         public void Execute(GeneratorExecutionContext context)
         {
@@ -25,21 +25,12 @@ namespace DiscriminatedUnions
         {
             var model = context.Compilation.GetSemanticModel(syntaxTree);
 
-            static bool HasUnionAttribute(StructDeclarationSyntax structDeclNode)
-                => structDeclNode
-                    .DescendantNodes()
-                    .OfType<AttributeSyntax>()
-                    .Select(attrNode => attrNode.Name)
-                    .Select(nameNode => nameNode as IdentifierNameSyntax)
-                    .Select(nameNode => nameNode?.Identifier.ValueText)
-                    .Any(value => value == UnionAttributeName);
-
             static bool IsEligibleUnion(StructDeclarationSyntax structDeclNode)
             {
                 if (!structDeclNode.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword)))
                     return false;
 
-                if (!HasUnionAttribute(structDeclNode))
+                if (!structDeclNode.HasUnionAttribute())
                     return false;
 
                 return true;
