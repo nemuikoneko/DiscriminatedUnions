@@ -1,7 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace DiscriminatedUnions;
 
@@ -18,10 +20,29 @@ public sealed class InitializationAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-        context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, ImmutableArray.Create(SyntaxKind.DefaultKeyword));
+        context.RegisterSyntaxNodeAction(
+            AnalyzeDefaultExpression,
+            ImmutableArray.Create(
+                SyntaxKind.DefaultExpression,
+                SyntaxKind.DefaultLiteralExpression));
     }
 
-    private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeDefaultExpression(SyntaxNodeAnalysisContext context)
     {
+        var typeSymbol = context.SemanticModel.GetTypeInfo(context.Node).Type;
+        if (typeSymbol == null)
+            return;
+
+        var defaultExprTypeIsUnionType = typeSymbol
+            .OriginalDefinition
+            .DeclaringSyntaxReferences
+            .Select(syntaxReference => syntaxReference.GetSyntax())
+            .Where(node => (node as StructDeclarationSyntax) != null)
+            .Cast<StructDeclarationSyntax>()
+            .Where(structDeclNode => structDeclNode.HasUnionAttribute())
+            .Any();
+
+        if (defaultExprTypeIsUnionType)
+            context.ReportDiagnostic(Diagnostic.Create(TestDiagnostic, context.Node.GetLocation()));
     }
 }
