@@ -10,12 +10,12 @@ namespace DiscriminatedUnions;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class Analyzer : DiagnosticAnalyzer
 {
-    public static readonly DiagnosticDescriptor DefaultExpressionNotAllowed = AnalyzerHelper.BuildDiagnosticDescriptor(
+    public static readonly DiagnosticDescriptor DefaultInitializationNotAllowed = AnalyzerHelper.BuildDiagnosticDescriptor(
         "DU1",
-        "Discriminated union is not allowed to be initialized using a default expression");
+        "Discriminated union types are not allowed to be initialized by a default expression or parameterless constructor");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(DefaultExpressionNotAllowed);
+        => ImmutableArray.Create(DefaultInitializationNotAllowed);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -23,19 +23,28 @@ public sealed class Analyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
         context.RegisterSyntaxNodeAction(
-            AnalyzeDefaultExpression,
+            AnalyzeInitializationExpression,
             ImmutableArray.Create(
                 SyntaxKind.DefaultExpression,
-                SyntaxKind.DefaultLiteralExpression));
+                SyntaxKind.DefaultLiteralExpression,
+                SyntaxKind.ObjectCreationExpression,
+                SyntaxKind.ImplicitObjectCreationExpression));
     }
 
-    private static void AnalyzeDefaultExpression(SyntaxNodeAnalysisContext context)
+    private static bool NodeIsPartOfGeneratedCode(SyntaxNode node) => node.SyntaxTree.FilePath.Contains(".g.cs");
+
+    private static void AnalyzeInitializationExpression(SyntaxNodeAnalysisContext context)
     {
-        var typeSymbol = context.SemanticModel.GetTypeInfo(context.Node).Type;
+        var node = context.Node;
+
+        if (NodeIsPartOfGeneratedCode(node))
+            return;
+
+        var typeSymbol = context.SemanticModel.GetTypeInfo(node).Type;
         if (typeSymbol == null)
             return;
 
-        var defaultExprTypeIsUnionType = typeSymbol
+        var exprTargetIsUnionType = typeSymbol
             .OriginalDefinition
             .DeclaringSyntaxReferences
             .Select(syntaxReference => syntaxReference.GetSyntax())
@@ -44,7 +53,9 @@ public sealed class Analyzer : DiagnosticAnalyzer
             .Where(structDeclNode => structDeclNode.HasUnionAttribute())
             .Any();
 
-        if (defaultExprTypeIsUnionType)
-            context.ReportDiagnostic(Diagnostic.Create(DefaultExpressionNotAllowed, context.Node.GetLocation()));
+        if (exprTargetIsUnionType)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(DefaultInitializationNotAllowed, node.GetLocation()));
+        }
     }
 }

@@ -5,4 +5,4 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-DU1 | Design | Error | Default expression not allowed
+DU1 | Design | Error | Analyzer
