@@ -50,8 +50,7 @@ public sealed class Analyzer : DiagnosticAnalyzer
             .Select(syntaxReference => syntaxReference.GetSyntax())
             .Where(node => (node as StructDeclarationSyntax) != null)
             .Cast<StructDeclarationSyntax>()
-            .Where(structDeclNode => structDeclNode.HasUnionAttribute())
-            .Any();
+            .Any(structDeclNode => structDeclNode.GetUnionAttribute(context.SemanticModel) != null);
 
         if (exprTargetIsUnionType)
         {

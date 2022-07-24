@@ -23,9 +23,6 @@ namespace DiscriminatedUnions
 
         private static void GenerateUnions(GeneratorExecutionContext context, SyntaxTree syntaxTree)
         {
-            static bool IsPartial(StructDeclarationSyntax structDeclNode)
-                => structDeclNode.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
-
             static bool UnionHasCases(Union union)
                 => union.Cases.Count != 0;
 
@@ -36,21 +33,33 @@ namespace DiscriminatedUnions
 
             var semanticModel = context.Compilation.GetSemanticModel(syntaxTree);
 
-            syntaxTree.GetRoot()
-                .DescendantNodes()
-                .OfType<StructDeclarationSyntax>()
-                .Where(IsPartial)
-                .Select(structDeclNode => new
-                {
-                    Node = structDeclNode,
-                    Attribute = GetUnionAttribute(structDeclNode, semanticModel)
-                })
-                .Where(unionData => unionData.Attribute != null)
-                .Select(unionData => BuildUnion(semanticModel, unionData.Node, unionData.Attribute))
+            FindUnionDeclarationNodes(syntaxTree, semanticModel)
+                .Select(unionData => BuildUnion(semanticModel, unionData.node, unionData.attribute))
                 .Where(UnionHasCases)
                 .Where(UnionHasDefaultCaseIfAllowDefaultOptionEnabled)
                 .ToList()
                 .ForEach(union => CodeGenerator.GenerateUnionSourceFile(context, union));
+        }
+
+        private static List<(StructDeclarationSyntax node, DiscriminatedUnionAttribute attribute)> FindUnionDeclarationNodes(SyntaxTree syntaxTree, SemanticModel semanticModel)
+        {
+            var result = new List<(StructDeclarationSyntax, DiscriminatedUnionAttribute)>();
+
+            syntaxTree.GetRoot()
+                .DescendantNodes()
+                .OfType<StructDeclarationSyntax>()
+                .Where(structDeclNode => structDeclNode.IsPartial())
+                .ToList()
+                .ForEach(structDeclNode =>
+                {
+                    var attribute = structDeclNode.GetUnionAttribute(semanticModel);
+                    if (attribute == null)
+                        return;
+
+                    result.Add((structDeclNode, attribute));
+                });
+
+            return result;
         }
 
         private static Union BuildUnion(
