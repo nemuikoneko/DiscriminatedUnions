@@ -40,33 +40,33 @@ namespace DiscriminatedUnions
         }
 
         static bool? GetAllowDefaultAttributeArgument(AttributeSyntax attrNode, SemanticModel semanticModel)
-            {
-                var allowDefaultAttrArgNode = attrNode
-                    .DescendantNodes()
-                    .OfType<AttributeArgumentSyntax>()
-                    .Where(attrArg => attrArg.NameEquals.Name.Identifier.ValueText == "AllowDefault")
-                    .SingleOrDefault();
+        {
+            var allowDefaultAttrArgNode = attrNode
+                .DescendantNodes()
+                .OfType<AttributeArgumentSyntax>()
+                .Where(attrArg => attrArg.NameEquals.Name.Identifier.ValueText == "AllowDefault")
+                .SingleOrDefault();
 
-                if (allowDefaultAttrArgNode == null)
-                    return null;
+            if (allowDefaultAttrArgNode == null)
+                return null;
 
-                return semanticModel.GetConstantValue(allowDefaultAttrArgNode.Expression).Value as bool?;
-            }
+            return semanticModel.GetConstantValue(allowDefaultAttrArgNode.Expression).Value as bool?;
+        }
 
-            static DiscriminatedUnionAttribute? GetUnionAttribute(StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
-                => structDeclNode
-                    .DescendantNodes()
-                    .OfType<AttributeSyntax>()
-                    .Where(attrNode => (attrNode.Name as IdentifierNameSyntax)?.Identifier.ValueText == UnionAttributeName)
-                    .Select(attrNode =>
+        static DiscriminatedUnionAttribute? GetUnionAttribute(StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
+            => structDeclNode
+                .DescendantNodes()
+                .OfType<AttributeSyntax>()
+                .Where(attrNode => (attrNode.Name as IdentifierNameSyntax)?.Identifier.ValueText == UnionAttributeName)
+                .Select(attrNode =>
+                {
+                    var allowDefaultAttrArg = GetAllowDefaultAttributeArgument(attrNode, semanticModel);
+
+                    return new DiscriminatedUnionAttribute
                     {
-                        var allowDefaultAttrArg = GetAllowDefaultAttributeArgument(attrNode, semanticModel);
-
-                        return new DiscriminatedUnionAttribute
-                        {
-                            AllowDefault = allowDefaultAttrArg ?? default
-                        };
-                    })
-                    .SingleOrDefault();
+                        AllowDefault = allowDefaultAttrArg ?? default
+                    };
+                })
+                .SingleOrDefault();
     }
 }
