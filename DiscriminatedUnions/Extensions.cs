@@ -47,5 +47,35 @@ namespace DiscriminatedUnions
                 .Select(nameNode => nameNode as IdentifierNameSyntax)
                 .Select(nameNode => nameNode?.Identifier.ValueText)
                 .Any(value => value == SourceGenerator.UnionAttributeName);
+
+        static bool? GetAllowDefaultAttributeArgument(AttributeSyntax attrNode, SemanticModel semanticModel)
+            {
+                var allowDefaultAttrArgNode = attrNode
+                    .DescendantNodes()
+                    .OfType<AttributeArgumentSyntax>()
+                    .Where(attrArg => attrArg.NameEquals.Name.Identifier.ValueText == "AllowDefault")
+                    .SingleOrDefault();
+
+                if (allowDefaultAttrArgNode == null)
+                    return null;
+
+                return semanticModel.GetConstantValue(allowDefaultAttrArgNode.Expression).Value as bool?;
+            }
+
+            static DiscriminatedUnionAttribute? GetUnionAttribute(StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
+                => structDeclNode
+                    .DescendantNodes()
+                    .OfType<AttributeSyntax>()
+                    .Where(attrNode => (attrNode.Name as IdentifierNameSyntax)?.Identifier.ValueText == UnionAttributeName)
+                    .Select(attrNode =>
+                    {
+                        var allowDefaultAttrArg = GetAllowDefaultAttributeArgument(attrNode, semanticModel);
+
+                        return new DiscriminatedUnionAttribute
+                        {
+                            AllowDefault = allowDefaultAttrArg ?? default
+                        };
+                    })
+                    .SingleOrDefault();
     }
 }

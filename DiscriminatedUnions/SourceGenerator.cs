@@ -23,36 +23,6 @@ namespace DiscriminatedUnions
 
         private static void GenerateUnions(GeneratorExecutionContext context, SyntaxTree syntaxTree)
         {
-            static bool? GetAllowDefaultAttributeArgument(AttributeSyntax attrNode, SemanticModel semanticModel)
-            {
-                var allowDefaultAttrArgNode = attrNode
-                    .DescendantNodes()
-                    .OfType<AttributeArgumentSyntax>()
-                    .Where(attrArg => attrArg.NameEquals.Name.Identifier.ValueText == "AllowDefault")
-                    .SingleOrDefault();
-
-                if (allowDefaultAttrArgNode == null)
-                    return null;
-
-                return semanticModel.GetConstantValue(allowDefaultAttrArgNode.Expression).Value as bool?;
-            }
-
-            static DiscriminatedUnionAttribute? GetUnionAttribute(StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
-                => structDeclNode
-                    .DescendantNodes()
-                    .OfType<AttributeSyntax>()
-                    .Where(attrNode => (attrNode.Name as IdentifierNameSyntax)?.Identifier.ValueText == UnionAttributeName)
-                    .Select(attrNode =>
-                    {
-                        var allowDefaultAttrArg = GetAllowDefaultAttributeArgument(attrNode, semanticModel);
-
-                        return new DiscriminatedUnionAttribute
-                        {
-                            AllowDefault = allowDefaultAttrArg ?? default
-                        };
-                    })
-                    .SingleOrDefault();
-
             static bool IsPartial(StructDeclarationSyntax structDeclNode)
                 => structDeclNode.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
 
