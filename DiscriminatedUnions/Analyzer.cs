@@ -44,16 +44,20 @@ public sealed class Analyzer : DiagnosticAnalyzer
         if (typeSymbol == null)
             return;
 
-        var exprTargetIsUnionType = typeSymbol
+        var unionAttr = typeSymbol
             .OriginalDefinition
             .DeclaringSyntaxReferences
             .Select(syntaxReference => syntaxReference.GetSyntax())
             .Where(node => (node as StructDeclarationSyntax) != null)
             .Cast<StructDeclarationSyntax>()
-            .Where(structDeclNode => structDeclNode.HasUnionAttribute())
-            .Any();
+            .Select(structDeclNode => structDeclNode.GetUnionAttribute(context.SemanticModel))
+            .Where(unionAttr => unionAttr != null)
+            .SingleOrDefault();
 
-        if (exprTargetIsUnionType)
+        if (unionAttr == null)
+            return;
+
+        if (!unionAttr.AllowDefault)
         {
             context.ReportDiagnostic(Diagnostic.Create(DefaultInitializationNotAllowed, node.GetLocation()));
         }

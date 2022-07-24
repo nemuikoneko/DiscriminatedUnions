@@ -23,32 +23,49 @@ namespace DiscriminatedUnions
 
         private static void GenerateUnions(GeneratorExecutionContext context, SyntaxTree syntaxTree)
         {
-            var model = context.Compilation.GetSemanticModel(syntaxTree);
+            static bool UnionHasCases(Union union)
+                => union.Cases.Count != 0;
 
-            static bool IsEligibleUnion(StructDeclarationSyntax structDeclNode)
-            {
-                if (!structDeclNode.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword)))
-                    return false;
+            static bool UnionHasDefaultCaseIfAllowDefaultOptionEnabled(Union union)
+                => union.Attribute.AllowDefault
+                    ? union.Cases.First().Parameters.Count == 0
+                    : true;
 
-                if (!structDeclNode.HasUnionAttribute())
-                    return false;
+            var semanticModel = context.Compilation.GetSemanticModel(syntaxTree);
 
-                return true;
-            }
-
-            static bool UnionHasCases(Union union) => union.Cases.Count != 0;
-
-            syntaxTree.GetRoot()
-                .DescendantNodes()
-                .OfType<StructDeclarationSyntax>()
-                .Where(IsEligibleUnion)
-                .Select(structDeclNode => BuildUnion(model, structDeclNode))
+            FindUnionDeclarationNodes(syntaxTree, semanticModel)
+                .Select(unionData => BuildUnion(semanticModel, unionData.node, unionData.attribute))
                 .Where(UnionHasCases)
+                .Where(UnionHasDefaultCaseIfAllowDefaultOptionEnabled)
                 .ToList()
                 .ForEach(union => CodeGenerator.GenerateUnionSourceFile(context, union));
         }
 
-        private static Union BuildUnion(SemanticModel model, StructDeclarationSyntax structDeclNode)
+        private static List<(StructDeclarationSyntax node, DiscriminatedUnionAttribute attribute)> FindUnionDeclarationNodes(SyntaxTree syntaxTree, SemanticModel semanticModel)
+        {
+            var result = new List<(StructDeclarationSyntax, DiscriminatedUnionAttribute)>();
+
+            syntaxTree.GetRoot()
+                .DescendantNodes()
+                .OfType<StructDeclarationSyntax>()
+                .Where(structDeclNode => structDeclNode.IsPartial())
+                .ToList()
+                .ForEach(structDeclNode =>
+                {
+                    var attribute = structDeclNode.GetUnionAttribute(semanticModel);
+                    if (attribute == null)
+                        return;
+
+                    result.Add((structDeclNode, attribute));
+                });
+
+            return result;
+        }
+
+        private static Union BuildUnion(
+            SemanticModel model,
+            StructDeclarationSyntax structDeclNode,
+            DiscriminatedUnionAttribute unionAttribute)
         {
             var structDeclSymbol = model.GetDeclaredSymbol(structDeclNode) ?? throw new Exception("Failed to retrieve symbol for struct declaration");
 
@@ -56,7 +73,11 @@ namespace DiscriminatedUnions
             var type = TypeInfo.FromNamedTypeSymbol(structDeclSymbol);
             var cases = GatherUnionCases(model, structDeclNode);
 
-            return new Union(name: name, type: type, cases: cases);
+            return new Union(
+                name: name,
+                type: type,
+                attribute: unionAttribute,
+                cases: cases);
         }
 
         private static IReadOnlyList<UnionCase> GatherUnionCases(SemanticModel model, StructDeclarationSyntax structDeclNode)
@@ -124,11 +145,13 @@ namespace DiscriminatedUnions
             internal Union(
                 string name,
                 TypeInfo type,
+                DiscriminatedUnionAttribute attribute,
                 IReadOnlyList<UnionCase> cases)
             {
                 Name = name;
                 Cases = cases;
                 Type = type;
+                Attribute = attribute;
             }
 
             internal string Name { get; }
@@ -136,6 +159,8 @@ namespace DiscriminatedUnions
             internal IReadOnlyList<UnionCase> Cases { get; }
 
             internal TypeInfo Type { get; }
+
+            internal DiscriminatedUnionAttribute Attribute { get; }
         }
 
         internal readonly struct TypeInfo

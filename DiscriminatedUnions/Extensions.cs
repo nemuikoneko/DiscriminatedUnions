@@ -39,13 +39,37 @@ namespace DiscriminatedUnions
             };
         }
 
-        internal static bool HasUnionAttribute(this StructDeclarationSyntax structDeclNode)
+        internal static bool IsPartial(this StructDeclarationSyntax structDeclNode)
+            => structDeclNode.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
+
+        private static bool? GetAllowDefaultAttributeArgument(AttributeSyntax attrNode, SemanticModel semanticModel)
+        {
+            var allowDefaultAttrArgNode = attrNode
+                .DescendantNodes()
+                .OfType<AttributeArgumentSyntax>()
+                .Where(attrArg => attrArg.NameEquals?.Name.Identifier.ValueText == "AllowDefault")
+                .SingleOrDefault();
+
+            if (allowDefaultAttrArgNode == null)
+                return null;
+
+            return semanticModel.GetConstantValue(allowDefaultAttrArgNode.Expression).Value as bool?;
+        }
+
+        internal static DiscriminatedUnionAttribute? GetUnionAttribute(this StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
             => structDeclNode
                 .DescendantNodes()
                 .OfType<AttributeSyntax>()
-                .Select(attrNode => attrNode.Name)
-                .Select(nameNode => nameNode as IdentifierNameSyntax)
-                .Select(nameNode => nameNode?.Identifier.ValueText)
-                .Any(value => value == SourceGenerator.UnionAttributeName);
+                .Where(attrNode => (attrNode.Name as IdentifierNameSyntax)?.Identifier.ValueText == SourceGenerator.UnionAttributeName)
+                .Select(attrNode =>
+                {
+                    var allowDefaultAttrArg = GetAllowDefaultAttributeArgument(attrNode, semanticModel);
+
+                    return new DiscriminatedUnionAttribute
+                    {
+                        AllowDefault = allowDefaultAttrArg ?? default
+                    };
+                })
+                .SingleOrDefault();
     }
 }
