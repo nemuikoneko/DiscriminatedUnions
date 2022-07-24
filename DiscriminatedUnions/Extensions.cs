@@ -39,15 +39,6 @@ namespace DiscriminatedUnions
             };
         }
 
-        internal static bool HasUnionAttribute(this StructDeclarationSyntax structDeclNode)
-            => structDeclNode
-                .DescendantNodes()
-                .OfType<AttributeSyntax>()
-                .Select(attrNode => attrNode.Name)
-                .Select(nameNode => nameNode as IdentifierNameSyntax)
-                .Select(nameNode => nameNode?.Identifier.ValueText)
-                .Any(value => value == SourceGenerator.UnionAttributeName);
-
         static bool? GetAllowDefaultAttributeArgument(AttributeSyntax attrNode, SemanticModel semanticModel)
             {
                 var allowDefaultAttrArgNode = attrNode
