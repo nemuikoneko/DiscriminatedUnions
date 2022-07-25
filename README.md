@@ -1,5 +1,3 @@
-TBD
-
 # Discriminated Unions
 ## Overview
 This library contains a source generator for creating Discriminated Unions in C# (also known as Tagged Unions or Choice Types).
