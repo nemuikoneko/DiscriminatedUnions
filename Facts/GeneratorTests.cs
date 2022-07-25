@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using DiscriminatedUnions;
+using nemuikoneko.DiscriminatedUnions;
 using Xunit;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Threading.Tasks;

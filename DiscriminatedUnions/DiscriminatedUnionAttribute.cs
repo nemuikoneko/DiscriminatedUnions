@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiscriminatedUnions;
+namespace nemuikoneko.DiscriminatedUnions;
 
 public class DiscriminatedUnionAttribute : Attribute
 {

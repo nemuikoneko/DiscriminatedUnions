@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace DiscriminatedUnions;
+namespace nemuikoneko.DiscriminatedUnions;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class Analyzer : DiagnosticAnalyzer

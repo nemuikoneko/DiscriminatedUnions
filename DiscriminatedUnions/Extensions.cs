@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DiscriminatedUnions
+namespace nemuikoneko.DiscriminatedUnions
 {
     internal static class Extensions
     {
