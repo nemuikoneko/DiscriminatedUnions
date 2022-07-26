@@ -9,12 +9,6 @@ namespace nemuikoneko.DiscriminatedUnions
 {
     internal static class Extensions
     {
-        internal static T Tap<T>(this T obj, Action<T> f)
-        {
-            f(obj);
-            return obj;
-        }
-
         internal static void ForEach<T>(this IReadOnlyList<T> list, Action<T> action)
         {
             foreach (var element in list)
