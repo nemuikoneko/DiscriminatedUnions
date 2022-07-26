@@ -224,6 +224,12 @@ Failing to fulfill these criteria will not generate any warnings and instead jus
 
 It is not recommended to allow a union to be defaultable unless you have a good reason to.
 
+### Union as a recursive type
+TODO
+
+### Union comparison
+TODO
+
 ## Release Notes
 ### 1.0.0-beta
 Basic functionality. Not yet stable.
