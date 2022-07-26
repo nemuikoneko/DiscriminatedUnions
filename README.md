@@ -2,7 +2,7 @@
 ## Overview
 This library contains a source generator for creating [Discriminated Unions](https://en.wikipedia.org/wiki/Tagged_union) in C# (also known as tagged unions, variants or choice types).
 
-The generated unions are meant to be more robust than other techniques used to build discriminated unions, e.g. subclassing an abstract class or record. The problem with these is that they are open-ended and the compiler does not lend us enough help to perform exhaustive matching. Exhaustive matching exists for plain enums, but 1) exhaustiveness is a suggestion, not a requirement, and 2) different editors suggest exhaustiveness differently. This library ensures that all cases have been accounted for when matching against the union's case.
+The generated unions are meant to be more robust than other techniques used to build discriminated unions in C#, e.g. subclassing an abstract class or record. The problem with these is that they are open-ended and the compiler does not lend us enough help to perform exhaustive matching. Exhaustive matching exists for plain enums, but 1) exhaustiveness is a suggestion, not a requirement, and 2) different editors suggest exhaustiveness differently. This library ensures that all cases have been accounted for when matching against the union's case.
 
 The generated union is also a struct, meaning that it cannot be null. This is further enforced by an analyzer that makes sure neither `new` or `default` is going to work and a union can only be instantiated by explicitly selecting a case.
 
