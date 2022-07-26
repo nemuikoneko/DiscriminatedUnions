@@ -8,10 +8,10 @@ The generated union is also a struct, meaning that it cannot be null. This is fu
 
 Note that the union cases can not be pattern matched against, which is a downside.
 
-## Important note
+## Important notes
+Because C# source generators are a relatively new concept it is important to make sure your IDE is up to date. While developing this library I got the strangest errors because my editor was not fully updated at first.
 
-TODO Make sure IDE is updated
-TODO Source generator IDE reload bug
+There also appears to be a bug in Roslyn(?) in which sources are not properly generated as they should without reloading the project if using Jetbrains Rider, or a full IDE restart if using Visual Studio. This is very annoying but important to keep in mind after having created, updated or moved a union declaration. You don't necessarily implement union types that often and their use may very well warrant dealing with this annoyance for now.
 
 ## Usage
 
