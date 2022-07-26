@@ -26,7 +26,7 @@ Note that no error will be reported if these criteria are not met; the union wil
 The generated union will exist as a partial type in a generated file and can be inspected by pressing F12 in the IDE and looking at the implementation.
 
 ### Basic union template
-```
+```csharp
 [DiscriminatedUnion]
 partial struct MyUnion
 {
@@ -46,7 +46,7 @@ var union3 = MyUnion.ThirdCase("s", 123);
 The union is instantiated by calling its static properties/methods dependent on which case to instantiate.
 
 ### Generic union
-```
+```csharp
 [DiscriminatedUnion]
 partial struct Option<T>
 {
@@ -63,7 +63,7 @@ var name2 = Option<string>.None;
 
 ### Union nested inside another type
 Unions can be nested inside other types (note that the parent must also be partial):
-```
+```csharp
 partial class/struct ParentClass
 {
     [DiscriminatedUnion]
@@ -81,7 +81,7 @@ partial class/struct ParentClass
 What differentiates a discriminated union from a plain enum or hierarchical structure is the ability to ensure exhaustive matching.
 
 Each generated union comes with a `Match` method that ensures all cases have been accounted for:
-```
+```csharp
 [DiscriminatedUnion]
 partial struct ParseError
 {
@@ -113,7 +113,7 @@ Do note that it is not possible to return `void`; this is done on purpose to adh
 Sometimes exhaustive matching is not desirable, e.g. if you only care about checking a few of the cases but don't care about the rest.
 
 The `MatchWithDefault` method lets you specify a default fallback which only gets called if none of the other cases matched:
-```
+```csharp
 var parseError = ParseError.TooShort;
 var readableErrorMessage = parseError.MatchWithDefault(
     _: () => "Parsing failed, not important why", // This lambda will be called since the other case does not match the active case
@@ -126,7 +126,7 @@ It is strongly recommended to **not** use this as it takes away one of the bigge
 Because the union is generated from a `partial` type, this means that the type itself is still just a C# type, and can be used as one would normally implement custom types (although it is recommended to keep union types as simple as possible).
 
 For example one could easily add implicit cast operators to make the resulting code clean and compact:
-```
+```csharp
 [DiscriminatedUnion]
 public readonly partial struct Result<TOk, TErr>
 {
@@ -194,7 +194,7 @@ An alternative is to use a more functional approach by composing function calls 
 Some unions need to be defaultable, e.g. `Option<T>` is a good candidate since one may want to use it as a replacement for `arg? = null` in a method argument list.
 
 Default initialization can be permitted by using the `AllowDefault` property on the `DiscriminatedUnion` attribute:
-```
+```csharp
 [DiscriminatedUnion(AllowDefault=true)]
 partial struct UnionWithDefault
 {
@@ -206,7 +206,7 @@ partial struct UnionWithDefault
 ```
 
 By enabling this the scenarios below will be allowed to compile:
-```
+```csharp
 static void SomeMethod(UnionWithDefault x = default) { }
 
 var a = default(UnionWithDefault);
