@@ -6,8 +6,6 @@ The generated unions are meant to be more robust than other techniques used to b
 
 The generated union is also a struct, meaning that it cannot be null. This is further enforced by an analyzer that makes sure neither `new` or `default` is going to work and a union can only be instantiated by explicitly selecting a case.
 
-Unions can be compared and will be equal when their cases and data match.
-
 Note that the union cases can not be pattern matched against, which is a downside.
 
 ## Important note
@@ -45,6 +43,19 @@ var union3 = MyUnion.ThirdCase("s", 123);
 ```
 
 The union is instantiated by calling its static properties/methods dependent on which case to instantiate.
+
+### Union comparison
+Unions can be compared and will be equal when their cases and data match:
+```csharp
+var union1 = MyUnion.ThirdCase("a", 1);
+var union2 = MyUnion.ThirdCase("a", 1);
+var union3 = MyUnion.ThirdCase("b", 1);
+var union4 = MyUnion.SecondCase(2);
+
+Console.WriteLine(union1 == union2); // True
+Console.WriteLine(union1 == union3); // False
+Console.WriteLine(union1 == union4); // False
+```
 
 ### Generic union
 ```csharp
@@ -280,9 +291,6 @@ var jValue = JValue.JObject(new[]
 
 var json = RenderJValue(jValue); // {name: "Robert", age: 45, nicknames: ["Bob", "Bobby", "Rob"]}
 ```
-
-### Union comparison
-TODO
 
 ## Release Notes
 ### 1.0.0-beta
