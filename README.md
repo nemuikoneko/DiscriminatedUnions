@@ -64,7 +64,7 @@ var name2 = Option<string>.None;
 ### Union nested inside another type
 Unions can be nested inside other types (note that the parent must also be partial):
 ```csharp
-partial class/struct ParentClass
+partial class/struct ParentType
 {
     [DiscriminatedUnion]
     partial struct ChildUnion
