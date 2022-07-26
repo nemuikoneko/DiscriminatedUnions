@@ -58,8 +58,8 @@ namespace DiscriminatedUnions
 
         internal static DiscriminatedUnionAttribute? GetUnionAttribute(this StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
             => structDeclNode
-                .DescendantNodes()
-                .OfType<AttributeSyntax>()
+                .AttributeLists
+                .SelectMany(attrListNode => attrListNode.Attributes)
                 .Where(attrNode => (attrNode.Name as IdentifierNameSyntax)?.Identifier.ValueText == SourceGenerator.UnionAttributeName)
                 .Select(attrNode =>
                 {
@@ -69,7 +69,6 @@ namespace DiscriminatedUnions
                     {
                         AllowDefault = allowDefaultAttrArg ?? default
                     };
-                })
-                .SingleOrDefault();
+                }).SingleOrDefault();
     }
 }
