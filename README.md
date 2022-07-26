@@ -12,6 +12,7 @@ Note that the union cases can not be pattern matched against, which is a downsid
 
 ## Important note
 
+TODO Make sure IDE is updated
 TODO Source generator IDE reload bug
 
 ## Usage
