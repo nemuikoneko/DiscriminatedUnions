@@ -58,7 +58,7 @@ public class Program
     [Fact]
     public async Task DebugAsync()
     {
-        var filePath = "../../../CompilableTestFile.cs";
+        var filePath = "../../../../TestProject/Program.cs";
         var compilation = CreateCompilation(new[] { CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)) });
 
         var generatedCompilation = RunGeneratorAndEnsureNoDiagnostics(compilation);
