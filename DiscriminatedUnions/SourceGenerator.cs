@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace DiscriminatedUnions
+namespace nemuikoneko.DiscriminatedUnions
 {
     [Generator]
     public sealed class SourceGenerator : ISourceGenerator

@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace DiscriminatedUnions;
+namespace nemuikoneko.DiscriminatedUnions;
 
 internal static class AnalyzerHelper
 {

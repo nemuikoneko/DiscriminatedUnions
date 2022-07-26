@@ -5,14 +5,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace DiscriminatedUnions;
+namespace nemuikoneko.DiscriminatedUnions;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class Analyzer : DiagnosticAnalyzer
 {
     public static readonly DiagnosticDescriptor DefaultInitializationNotAllowed = AnalyzerHelper.BuildDiagnosticDescriptor(
         "DU1",
-        "Discriminated union types are not allowed to be initialized by a default expression or parameterless constructor");
+        "Discriminated union types are not allowed to be initialized by a default expression or by a constructor");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         => ImmutableArray.Create(DefaultInitializationNotAllowed);

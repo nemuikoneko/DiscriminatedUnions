@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using static DiscriminatedUnions.SourceGenerator;
+using static nemuikoneko.DiscriminatedUnions.SourceGenerator;
 
-namespace DiscriminatedUnions
+namespace nemuikoneko.DiscriminatedUnions
 {
     internal static class CodeGenerator
     {
