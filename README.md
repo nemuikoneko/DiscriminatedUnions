@@ -77,40 +77,6 @@ partial class/struct ParentClass
 }
 ```
 
-### Union with default initialization
-Some unions need to be defaultable, e.g. `Option<T>` is a good candidate since one may want to use it as a replacement for `arg? = null` in a method argument list.
-
-Default initialization can be permitted by using the `AllowDefault` property on the `DiscriminatedUnion` attribute:
-```
-[DiscriminatedUnion(AllowDefault=true)]
-partial struct UnionWithDefault
-{
-    interface Cases
-    {
-        void MyCase();
-    }
-}
-```
-
-By enabling this the scenarios below will be allowed to compile:
-```
-static void SomeMethod(UnionWithDefault x = default) { }
-
-var a = default(UnionWithDefault);
-UnionWithDefault b = default;
-
-var c = new UnionWithDefault();
-UnionWithDefault d = new();
-```
-
-For unions allowing default initialization there are some requirements that ensures there is something to default to:
-- The union must have at least one case
-- The first case must take no arguments
-
-Failing to fulfill these criteria will not generate any warnings and instead just not generate the union.
-
-It is not recommended to allow a union to be defaultable unless you have a good reason to.
-
 ### Matching
 What differentiates a discriminated union from a plain enum or hierarchical structure is the ability to ensure exhaustive matching.
 
@@ -223,6 +189,40 @@ Do note that when we begin to match on the outcome the code may become a bit blo
 An alternative is to use a more functional approach by composing function calls using the monad pattern, which would significantly reduce the boilerplate and ensure type safety all the way through, really taking advantage of the discriminated unions.
 
 **Important:** You should let the union be generated without any additional code first, then add your custom code to the type to avoid any problems with the generation.
+
+### Union with default initialization
+Some unions need to be defaultable, e.g. `Option<T>` is a good candidate since one may want to use it as a replacement for `arg? = null` in a method argument list.
+
+Default initialization can be permitted by using the `AllowDefault` property on the `DiscriminatedUnion` attribute:
+```
+[DiscriminatedUnion(AllowDefault=true)]
+partial struct UnionWithDefault
+{
+    interface Cases
+    {
+        void MyCase();
+    }
+}
+```
+
+By enabling this the scenarios below will be allowed to compile:
+```
+static void SomeMethod(UnionWithDefault x = default) { }
+
+var a = default(UnionWithDefault);
+UnionWithDefault b = default;
+
+var c = new UnionWithDefault();
+UnionWithDefault d = new();
+```
+
+For unions allowing default initialization there are some requirements that ensures there is something to default to:
+- The union must have at least one case
+- The first case must take no arguments
+
+Failing to fulfill these criteria will not generate any warnings and instead just not generate the union.
+
+It is not recommended to allow a union to be defaultable unless you have a good reason to.
 
 ## Release Notes
 ### 1.0.0-beta
