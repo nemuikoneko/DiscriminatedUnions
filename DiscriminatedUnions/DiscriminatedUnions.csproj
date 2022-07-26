@@ -19,7 +19,7 @@
 		<Copyright>Copyright © nemuikoneko 2022</Copyright>
 
 		<PackageProjectUrl>https://github.com/nemuikoneko/DiscriminatedUnions</PackageProjectUrl>
-		<PackageTags>discriminated tagged union unions choice type source generator</PackageTags>
+		<PackageTags>discriminated tagged union unions choice type variant source generator</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
