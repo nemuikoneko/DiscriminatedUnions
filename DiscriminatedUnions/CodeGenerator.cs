@@ -16,8 +16,12 @@ namespace DiscriminatedUnions
             sb.Append("// Auto-generated");
             sb.Append("#nullable enable");
             sb.Append();
-            sb.Append($"namespace {union.Type.Namespace};");
-            sb.Append();
+
+            if (!union.Type.Namespace.IsGlobalNamespace)
+            {
+                sb.Append($"namespace {union.Type.Namespace};");
+                sb.Append();
+            }
 
             union.Type.ParentTypes.ForEach(parentType =>
             {
