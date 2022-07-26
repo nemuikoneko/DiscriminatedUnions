@@ -5,7 +5,6 @@
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<GenerateProgramFile>false</GenerateProgramFile>
 	</PropertyGroup>
 
 	<ItemGroup>
