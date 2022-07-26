@@ -186,7 +186,7 @@ By using nested types this allows us to avoid naming such as `UsernameParseError
 
 Do note that when we begin to match on the outcome the code may become a bit bloated since we are required to unwrap each inner match expression all the way. This boilerplate can be reduced by taking common usage of the match and turn it into a method or implicit cast, e.g. `ParseError.ToHumanReadableString()`.
 
-An alternative is to use a more functional approach by composing function calls using the monad pattern, which would significantly reduce the boilerplate and ensure type safety all the way through, really taking advantage of the discriminated unions.
+An alternative is to use a more functional approach by composing function calls using the monad pattern, which would significantly reduce the boilerplate and ensure type safety all the way through.
 
 **Important:** You should let the union be generated without any additional code first, then add your custom code to the type to avoid any problems with the generation.
 
