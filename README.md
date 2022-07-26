@@ -20,6 +20,7 @@ A union will only be generated when these criteria are met:
 - The type is a partial struct
 - The type is marked with the `[DiscriminatedUnion]` attribute from the `nemuikoneko.DiscriminatedUnions` namespace
 - The type contains an interface named `Cases` whose members are of the format `void CaseName(<arguments>);`
+- There exists at least one union case
 
 For unions allowing default initialization this is also required:
 - The union must have at least one case
