@@ -226,7 +226,60 @@ Failing to fulfill these criteria will not generate any warnings and instead jus
 It is not recommended to allow a union to be defaultable unless you have a good reason to.
 
 ### Union as a recursive type
-TODO
+One nice property of discriminated unions is they lend themselves nicely to type modeling. In the example below we build a JSON structure programmatically, then convert it to a displayable string (rewritten example from [this](http://book.realworldhaskell.org/read/writing-a-library-working-with-json-data.html) book):
+```csharp
+[DiscriminatedUnion]
+public readonly partial struct JValue
+{
+    interface Cases
+    {
+        void JString(string s);
+        void JNumber(double d);
+        void JBool(bool b);
+        void JNull();
+        void JObject((string, JValue)[] obj);
+        void JArray(JValue[] arr);
+    }
+}
+
+public static string RenderJValue(JValue jValue)
+{
+    static string RenderValues(JValue[] arr)
+        => arr.Length == 0
+            ? string.Empty
+            : string.Join(", ", arr.Select(RenderJValue));
+
+    static string RenderPair((string, JValue) pair)
+        => $"{pair.Item1}: {RenderJValue(pair.Item2)}";
+
+    static string RenderPairs((string, JValue)[] obj)
+        => obj.Length == 0
+            ? string.Empty
+            : string.Join(", ", obj.Select(RenderPair));
+
+    return jValue.Match(
+        JString: s => $"\"{s}\"",
+        JNumber: num => num.ToString(),
+        JNull: () => "null",
+        JBool: b => b == true ? "true" : "false",
+        JArray: arr => $"[{RenderValues(arr)}]",
+        JObject: obj => $"{{{RenderPairs(obj)}}}");
+}
+    
+var jValue = JValue.JObject(new[]
+{
+    ("name", JValue.JString("Robert")),
+    ("age", JValue.JNumber(45)),
+    ("nicknames", JValue.JArray(new[]
+    {
+        JValue.JString("Bob"),
+        JValue.JString("Bobby"),
+        JValue.JString("Rob")
+    }))
+});
+
+var json = RenderJValue(jValue); // {name: "Robert", age: 45, nicknames: ["Bob", "Bobby", "Rob"]}
+```
 
 ### Union comparison
 TODO
