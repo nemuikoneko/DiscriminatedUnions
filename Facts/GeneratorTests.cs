@@ -20,24 +20,6 @@ public class GeneratorTests
             new[] { MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location) },
             new CSharpCompilationOptions(OutputKind.ConsoleApplication));
 
-    private static Compilation CreateDefaultCompilation(string mainSyntaxTreeCode, params string[] additionalSyntaxTreesCode)
-    {
-        static SyntaxTree CreateSyntaxTree(string code) => CSharpSyntaxTree.ParseText($"namespace App;\n{code}");
-
-        var mainSyntaxTree = CreateSyntaxTree($@"
-public class Program
-{{
-    public static void Main(string[] args) {{}}
-
-    {mainSyntaxTreeCode}
-}}");
-
-        var syntaxTrees = new SyntaxTree[] { mainSyntaxTree }
-            .Concat(additionalSyntaxTreesCode.Select(code => CSharpSyntaxTree.ParseText(code))).ToArray();
-
-        return CreateCompilation(syntaxTrees);
-    }
-
     private static (Compilation GeneratedCompilation, ImmutableArray<Diagnostic> Diagnostics) RunGenerator(Compilation inputCompilation)
     {
         var generatorDriver = CSharpGeneratorDriver.Create(new SourceGenerator());
