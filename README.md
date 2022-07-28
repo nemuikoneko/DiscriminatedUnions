@@ -22,7 +22,7 @@ A union will only be generated when these criteria are met:
 - There exists at least one union case
 
 Note that no error will be reported if these criteria are not met; the union will simply not be generated.
-The generated union will exist as a partial type in a generated file and can be inspected by pressing F12 in the IDE and looking at the implementation.
+The generated union will exist as a partial type in a generated file and can be inspected by pressing F12 in the IDE.
 
 ### Basic union template
 ```csharp
@@ -73,22 +73,6 @@ var name1 = Option<string>.Some("Bob");
 var name2 = Option<string>.None;
 ```
 
-### Union nested inside another type
-Unions can be nested inside other types (note that the parent must also be partial):
-```csharp
-partial class/struct ParentType
-{
-    [DiscriminatedUnion]
-    partial struct ChildUnion
-    {
-        interface Cases
-        {
-            void MyCase();
-        }
-    }
-}
-```
-
 ### Matching
 What differentiates a discriminated union from a plain enum or hierarchical structure is the ability to ensure exhaustive matching.
 
@@ -133,6 +117,22 @@ var readableErrorMessage = parseError.MatchWithDefault(
 ```
 
 It is strongly recommended to **not** use this as it takes away one of the biggest advantages of using a discriminated union in the first place, namely exhaustive matching. Only use this if you know what you're doing.
+
+### Union nested inside another type
+Unions can be nested inside other types (note that the parent must also be partial):
+```csharp
+partial class/struct/record ParentType
+{
+    [DiscriminatedUnion]
+    partial struct ChildUnion
+    {
+        interface Cases
+        {
+            void MyCase();
+        }
+    }
+}
+```
 
 ### Enhancing the type
 Because the union is generated from a `partial` type, this means that the type itself is still just a C# type, and can be used as one would normally implement custom types (although it is recommended to keep union types as simple as possible).
