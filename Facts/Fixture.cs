@@ -44,12 +44,6 @@ internal sealed class Fixture
                     .Append(MetadataReference.CreateFromFile(typeof(SourceGenerator).Assembly.Location)))
             .AddAnalyzerReference(new AnalyzerFileReference(typeof(SourceGenerator).Assembly.Location, new AssemblyLoader()));
 
-    private sealed class AssemblyLoader : IAnalyzerAssemblyLoader
-    {
-        public void AddDependencyLocation(string fullPath) {}
-        public Assembly LoadFromPath(string fullPath) => Assembly.LoadFrom(fullPath);
-    }
-
     private static async Task<List<Document>> RunCodeFixProvider(Document document, Diagnostic diagnostic)
     {
         var codeActions = new List<CodeAction>();
@@ -69,5 +63,11 @@ internal sealed class Fixture
             changedDocuments.Add(await changedDocumentTask);
         }
         return changedDocuments;
+    }
+
+    private sealed class AssemblyLoader : IAnalyzerAssemblyLoader
+    {
+        public void AddDependencyLocation(string fullPath) { }
+        public Assembly LoadFromPath(string fullPath) => Assembly.LoadFrom(fullPath);
     }
 }
