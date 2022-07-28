@@ -4,7 +4,7 @@ This library contains a source generator for creating [Discriminated Unions](htt
 
 The generated unions are meant to be more robust than other techniques used to build discriminated unions in C#, e.g. subclassing an abstract class or record. The problem with these is that they are open-ended and the compiler does not lend us enough help to perform exhaustive matching. Exhaustive matching exists for plain enums, but 1) exhaustiveness is a suggestion, not a requirement, and 2) different editors suggest exhaustiveness differently. This library ensures that all cases have been accounted for when matching against the union's case.
 
-The generated union is also a struct, meaning that it cannot be null. This is further enforced by an analyzer that makes sure neither `new` or `default` is going to work and a union can only be instantiated by explicitly selecting a case.
+The generated union is also a `struct`, meaning that it cannot be null. This is further enforced by an analyzer that makes sure neither `new` or `default` is going to work and a union can only be instantiated by explicitly selecting a case.
 
 Note that the union cases can not be pattern matched against, which is a downside.
 
@@ -16,13 +16,13 @@ There also appears to be a bug in Roslyn(?) in which sources are not properly ge
 ## Usage
 
 A union will only be generated when these criteria are met:
-- The type is a partial struct
+- The type is a `partial` `struct`
 - The type is marked with the `[DiscriminatedUnion]` attribute from the `nemuikoneko.DiscriminatedUnions` namespace
 - The type contains an interface named `Cases` whose members are of the format `void CaseName(<arguments>);`
 - There exists at least one union case
 
 Note that no error will be reported if these criteria are not met; the union will simply not be generated.
-The generated union will exist as a partial type in a generated file and can be inspected by pressing F12 in the IDE.
+The generated union will exist as a `partial` type in a generated file and can be inspected by pressing F12 in the IDE.
 
 ### Basic union template
 ```csharp
@@ -119,7 +119,7 @@ var readableErrorMessage = parseError.MatchWithDefault(
 It is strongly recommended to **not** use this as it takes away one of the biggest advantages of using a discriminated union in the first place, namely exhaustive matching. Only use this if you know what you're doing.
 
 ### Union nested inside another type
-Unions can be nested inside other types (note that the parent must also be partial):
+Unions can be nested inside other types (note that the parent must also be `partial`):
 ```csharp
 partial class/struct/record ParentType
 {
