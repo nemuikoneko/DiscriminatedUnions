@@ -4,7 +4,6 @@ using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using nemuikoneko.DiscriminatedUnions;
 using Xunit;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -14,34 +13,19 @@ namespace Facts;
 
 public class GeneratorTests
 {
-    private static Compilation CreateCompilation(SyntaxTree[] syntaxTrees)
-        => CSharpCompilation.Create("compilation",
-            syntaxTrees,
-            new[] { MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location) },
-            new CSharpCompilationOptions(OutputKind.ConsoleApplication));
-
-    private static (Compilation GeneratedCompilation, ImmutableArray<Diagnostic> Diagnostics) RunGenerator(Compilation inputCompilation)
+    internal static Compilation RunGeneratorAndEnsureNoDiagnostics(Compilation inputCompilation)
     {
-        var generatorDriver = CSharpGeneratorDriver.Create(new SourceGenerator());
-        generatorDriver.RunGeneratorsAndUpdateCompilation(inputCompilation, out var generatedCompilation, out var diagnostics);
-        return (generatedCompilation, diagnostics);
-    }
-
-    private static Compilation RunGeneratorAndEnsureNoDiagnostics(Compilation inputCompilation)
-    {
-        var (generatedCompilation, diagnostics) = RunGenerator(inputCompilation);
-
-        if (!diagnostics.IsEmpty)
+        var (outputCompilation, diagnostics) = Fixture.RunGenerator(inputCompilation);
+        if (diagnostics.Count > 0)
             throw new Exception("Generator execution resulted in diagnostics!");
-
-        return generatedCompilation;
+        return outputCompilation;
     }
 
     [Fact]
     public async Task DebugAsync()
     {
         var filePath = "../../../../TestProject/Program.cs";
-        var compilation = CreateCompilation(new[] { CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)) });
+        var compilation = Fixture.CreateCompilation(new[] { CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)) });
 
         var generatedCompilation = RunGeneratorAndEnsureNoDiagnostics(compilation);
 
