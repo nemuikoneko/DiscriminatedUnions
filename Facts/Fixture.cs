@@ -72,12 +72,20 @@ internal sealed class Fixture
             .Project
             .AddMetadataReferences(
                 Basic.Reference.Assemblies.Net60.All
-                    .Append(MetadataReference.CreateFromFile(typeof(SourceGenerator).Assembly.Location)));
+                    .Append(MetadataReference.CreateFromFile(typeof(SourceGenerator).Assembly.Location)))
+            .AddAnalyzerReference(new AnalyzerFileReference(typeof(SourceGenerator).Assembly.Location, new AssemblyLoader()));
+
+    private sealed class AssemblyLoader : IAnalyzerAssemblyLoader
+    {
+        public void AddDependencyLocation(string fullPath) {}
+        public Assembly LoadFromPath(string fullPath) => Assembly.LoadFrom(fullPath);
+    }
 
     private static async Task<List<Document>> RunCodeFixProvider(Document document, Diagnostic diagnostic)
     {
         var codeActions = new List<CodeAction>();
         var codeFixContext = new CodeFixContext(document, diagnostic, (a, d) => codeActions.Add(a), CancellationToken.None);
+
         await new DiscriminatedUnionCodeFixProvider().RegisterCodeFixesAsync(codeFixContext);
 
         var changedDocumentTasks = codeActions
