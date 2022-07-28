@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using nemuikoneko.DiscriminatedUnions;
 using System;
@@ -16,50 +15,20 @@ namespace Facts;
 
 internal sealed class Fixture
 {
-    internal static Compilation CreateCompilation(SyntaxTree[] syntaxTrees)
-        => CSharpCompilation.Create(
-            "compilation",
-            syntaxTrees,
-            new[] { MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location) },
-            new CSharpCompilationOptions(OutputKind.ConsoleApplication));
-
-    internal static (Compilation compilation, List<Diagnostic> diagnostics) RunGenerator(Compilation inputCompilation)
-    {
-        var generatorDriver = CSharpGeneratorDriver.Create(new SourceGenerator());
-        generatorDriver.RunGeneratorsAndUpdateCompilation(inputCompilation, out var outputCompilation, out var diagnostics);
-        return (outputCompilation, diagnostics.ToList());
-    }
-
     internal static async Task SetUpEnvironmentAsync(SyntaxTree syntaxTree)
     {
         var project = await CreateProjectWithSingleDocumentAsync(syntaxTree);
 
-        var orgCompilation = await GetCompilationAsync(project);
-        var compilationAfterRunningGenerator = RunGenerator(orgCompilation.compilation);
-        var compilationAfterRunningAnalyzer = await RunAnalyzer(compilationAfterRunningGenerator.compilation);
-
-        foreach (var diagnostic in compilationAfterRunningAnalyzer.diagnostics)
-        {
-            var changedDocuments = await RunCodeFixProvider(project.Documents.Single(), diagnostic);
-        }
-    }
-
-    private static async Task<(Compilation compilation, List<Diagnostic> diagnostics)> GetCompilationAsync(Project project)
-    {
         var compilation = await project.GetCompilationAsync();
         if (compilation == null)
             throw new Exception("Failed to retrieve compilation");
 
-        var diagnostics = compilation.GetDiagnostics().ToList();
+        var compilationWithAnalyzer = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new Analyzer()));
 
-        return (compilation, diagnostics);
-    }
-
-    private static async Task<(CompilationWithAnalyzers compilation, List<Diagnostic> diagnostics)> RunAnalyzer(Compilation compilation)
-    {
-        var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new Analyzer()));
-        var diagnostics = (await compilationWithAnalyzers.GetAllDiagnosticsAsync()).ToList();
-        return (compilationWithAnalyzers, diagnostics);
+        foreach (var diagnostic in await compilationWithAnalyzer.GetAllDiagnosticsAsync())
+        {
+            var changedDocuments = await RunCodeFixProvider(project.Documents.Single(), diagnostic);
+        }
     }
 
     private static async Task<Project> CreateProjectWithSingleDocumentAsync(SyntaxTree syntaxTree)
