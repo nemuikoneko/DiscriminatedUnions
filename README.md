@@ -98,7 +98,7 @@ var readableErrorMessage = parseError.Match(
 
 Whenever a union case is removed, renamed, added or in any way updated, all match expressions like this will no longer compile, keeping your code safe from becoming outdated.
 
-Note that it is optional to specify the case name, but it is highly recommended to do so as it makes the code much more readable.
+It is optional to specify the case name, but it is highly recommended to do so as it makes the code much more readable.
 It is also optional to use the lambda parameters, that is to say it would be possible to ignore the illegal symbol `x` here by replacing it with `_`.
 
 The return type of `Match` in this example is inferred to be `string`.
