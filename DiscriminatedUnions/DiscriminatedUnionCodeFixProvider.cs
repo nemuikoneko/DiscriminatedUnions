@@ -30,8 +30,29 @@ public sealed class DiscriminatedUnionCodeFixProvider : CodeFixProvider
         var document = context.Document;
         var nodeToFixSpan = context.Span;
 
-        if (diagnostic.Id != InvalidMethodArgDiagnosticId)
+        var assessmentResult = await AssessDiagnostic(diagnostic, document, nodeToFixSpan);
+        if (!assessmentResult.HasValue)
             return;
+
+        context.RegisterCodeFix(
+            CodeAction.Create(
+                title: "Implement missing union cases",
+                createChangedDocument: cancellationToken => FixDiagnostic(
+                    document,
+                    assessmentResult.Value.syntaxRoot,
+                    assessmentResult.Value.nodeToFix,
+                    assessmentResult.Value.method),
+                equivalenceKey: diagnostic.Id),
+            diagnostic);
+    }
+
+    private static async Task<(InvocationExpressionSyntax nodeToFix, IMethodSymbol method, SyntaxNode syntaxRoot)?> AssessDiagnostic(
+        Diagnostic diagnostic,
+        Document document,
+        TextSpan nodeToFixSpan)
+    {
+        if (diagnostic.Id != InvalidMethodArgDiagnosticId)
+            return null;
 
         var semanticModel = await document.GetSemanticModelAsync();
         if (semanticModel == null)
@@ -41,23 +62,21 @@ public sealed class DiscriminatedUnionCodeFixProvider : CodeFixProvider
         if (syntaxRoot == null)
             throw new Exception("Failed to retrieve syntax root");
 
-        var nodeToFix = GetNodeToFix(syntaxRoot, nodeToFixSpan);
-        if (nodeToFix == null)
-            throw new Exception("Node to fix not found");
+        var candidateNodeToFix = GetNodeToFixCandidate(syntaxRoot, nodeToFixSpan);
+        if (candidateNodeToFix == null)
+            return null;
 
-        var methodSymbol = GetMethodSymbol(nodeToFix, semanticModel);
-        if (!IsMethodPartOfGeneratedUnion(methodSymbol, semanticModel))
-            return;
+        var method = GetMethodSymbol(candidateNodeToFix, semanticModel);
+        if (method == null)
+            return null;
 
-        context.RegisterCodeFix(
-            CodeAction.Create(
-                title: diagnostic.Id,
-                createChangedDocument: cancellationToken => FixDiagnostic(document, nodeToFix, methodSymbol),
-                equivalenceKey: diagnostic.Id),
-            diagnostic);
+        if (!IsMethodPartOfGeneratedUnion(method, semanticModel))
+            return null;
+
+        return (candidateNodeToFix, method, syntaxRoot);
     }
 
-    private static InvocationExpressionSyntax GetNodeToFix(SyntaxNode syntaxRoot, TextSpan span)
+    private static InvocationExpressionSyntax GetNodeToFixCandidate(SyntaxNode syntaxRoot, TextSpan span)
         => syntaxRoot
             .FindNode(span)
             .Ancestors()
@@ -65,12 +84,12 @@ public sealed class DiscriminatedUnionCodeFixProvider : CodeFixProvider
             .Where(node => (node.Expression as MemberAccessExpressionSyntax)?.Name.Identifier.ValueText == CodeGenerator.MatchMethodName)
             .LastOrDefault();
 
-    private static IMethodSymbol GetMethodSymbol(SyntaxNode node, SemanticModel semanticModel)
+    private static IMethodSymbol? GetMethodSymbol(InvocationExpressionSyntax node, SemanticModel semanticModel)
     {
-        var symbol = semanticModel.GetTypeInfo(node).Type?.ContainingSymbol;
-        if (symbol == null)
-            throw new Exception("Failed to retrieve symbol");
-        return (IMethodSymbol)symbol.OriginalDefinition;
+        var typeSymbol = semanticModel.GetTypeInfo(node).Type;
+        if (typeSymbol == null)
+            throw new Exception("Failed to retrieve type symbol");
+        return (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod;
     }
 
     private static bool IsMethodPartOfGeneratedUnion(IMethodSymbol methodSymbol, SemanticModel semanticModel)
@@ -82,12 +101,82 @@ public sealed class DiscriminatedUnionCodeFixProvider : CodeFixProvider
             .Where(structDeclNode => structDeclNode.GetUnionAttribute(semanticModel) != null)
             .Any();
 
-    private static async Task<Document> FixDiagnostic(
+    private static Task<Document> FixDiagnostic(
         Document document,
+        SyntaxNode syntaxRoot,
         InvocationExpressionSyntax nodeToFix,
-        IMethodSymbol methodSymbol)
+        IMethodSymbol method)
     {
-        await Task.Yield();
-        return document;
+        var (numUnnamedArgs, namedArgs) = GetNamedArgs(nodeToFix);
+        var missingArgs = CreateMissingArguments(method, numUnnamedArgs, namedArgs, compilationUnitIncludesSystemNamespace: false);
+
+        var newArgListNode = nodeToFix.ArgumentList.AddArguments(missingArgs.ToArray());
+        var fixedNode = nodeToFix.WithArgumentList(newArgListNode);
+
+        var newSyntaxRoot = syntaxRoot.ReplaceNode(nodeToFix, fixedNode);
+        var newDocument = document.WithSyntaxRoot(newSyntaxRoot);
+
+        return Task.FromResult(newDocument);
+    }
+
+    private static (int numUnnamedArgs, ImmutableArray<string> namedArgs) GetNamedArgs(InvocationExpressionSyntax node)
+    {
+        var argNames = node
+            .ArgumentList
+            .Arguments
+            .Select(arg => arg.NameColon?.Name.Identifier.ValueText);
+
+        var numUnnamedArgs = argNames
+            .Where(argName => argName == null)
+            .Count();
+
+        var namedArgs = argNames
+            .Aggregate(ImmutableArray<string>.Empty, (arr, argName) => argName == null ? arr : arr.Add(argName));
+
+        return (numUnnamedArgs, namedArgs);
+    }
+
+    private static ImmutableArray<ITypeSymbol> GetInputTypeArgs(IParameterSymbol param)
+    {
+        var typeArgs = (param.Type as INamedTypeSymbol)?.TypeArguments.AsEnumerable();
+        if (typeArgs == null)
+            throw new Exception("Failed to retrieve type arguments");
+        return typeArgs.Take(typeArgs.Count() - 1).ToImmutableArray();
+    }
+
+    private static string RenderInputTypeArgs(ImmutableArray<ITypeSymbol> typeArgs)
+    {
+        if (typeArgs.Length == 0)
+            return "()";
+
+        if (typeArgs.Length == 1)
+            return "arg";
+
+        var typeArgStrs = typeArgs.Select((typeArg, i) => $"arg{i + 1}");
+        return $"({typeArgStrs.Join(", ")})";
+    }
+
+    private static ImmutableArray<ArgumentSyntax> CreateMissingArguments(
+        IMethodSymbol method,
+        int numUnnamedArgs,
+        ImmutableArray<string> namedArgs,
+        bool compilationUnitIncludesSystemNamespace)
+    {
+        var lambdaBodyStr = compilationUnitIncludesSystemNamespace
+            ? "throw new NotImplementedException()"
+            : "throw new System.NotImplementedException()";
+
+        var paramsToCreateArgsFrom = method
+            .Parameters
+            .Skip(numUnnamedArgs)
+            .Where(param => !namedArgs.Contains(param.Name));
+
+        var argStrs = paramsToCreateArgsFrom
+            .Select(param => $"{param.Name}: {RenderInputTypeArgs(GetInputTypeArgs(param))} => {lambdaBodyStr}");
+
+        return SyntaxFactory
+            .ParseArgumentList(argStrs.Join(", "))
+            .Arguments
+            .ToImmutableArray();
     }
 }
