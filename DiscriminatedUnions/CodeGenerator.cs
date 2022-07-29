@@ -9,6 +9,9 @@ namespace nemuikoneko.DiscriminatedUnions
 {
     internal static class CodeGenerator
     {
+        internal const string MatchMethodName = "Match";
+        internal const string MatchWithDefaultMethodName = "MatchWithDefault";
+
         internal static void GenerateUnionSourceFile(GeneratorExecutionContext context, Union union)
         {
             var sb = new IndentableStringBuilder();
@@ -126,7 +129,7 @@ namespace nemuikoneko.DiscriminatedUnions
             _AppendMatchMethod(
                 sb,
                 union,
-                matchMethodName: "Match",
+                matchMethodName: MatchMethodName,
                 defaultMethodArgsToNull: false,
                 addDefaultMethodArg: false,
                 redirectToDefaultBranchIfCaseIsNull: false,
@@ -138,7 +141,7 @@ namespace nemuikoneko.DiscriminatedUnions
             _AppendMatchMethod(
                 sb,
                 union,
-                matchMethodName: "MatchWithDefault",
+                matchMethodName: MatchWithDefaultMethodName,
                 defaultMethodArgsToNull: true,
                 addDefaultMethodArg: true,
                 redirectToDefaultBranchIfCaseIsNull: true,
