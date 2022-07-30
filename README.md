@@ -17,7 +17,7 @@ There also appears to be some sort of IDE caching bug in which sources are not p
 
 A union will only be generated when these criteria are met:
 - The type is a `partial` `struct`
-- The type is marked with the `[DiscriminatedUnion]` attribute from the `nemuikoneko.DiscriminatedUnions` namespace
+- The type is marked with the `[Union]` attribute from the `nemuikoneko.DiscriminatedUnions` namespace
 - The type contains an interface named `Cases` whose members are of the format `void CaseName(<arguments>);`
 - There exists at least one union case
 
@@ -26,7 +26,7 @@ The generated union will exist as a `partial` type in a generated file and can b
 
 ### Basic union template
 ```csharp
-[DiscriminatedUnion]
+[Union]
 partial struct MyUnion
 {
     interface Cases
@@ -59,7 +59,7 @@ Console.WriteLine(union1 == union4); // False
 
 ### Generic union
 ```csharp
-[DiscriminatedUnion]
+[Union]
 partial struct Option<T>
 {
     interface Cases
@@ -78,7 +78,7 @@ What differentiates a discriminated union from a plain enum or hierarchical stru
 
 Each generated union comes with a `Match` method that ensures all cases have been accounted for:
 ```csharp
-[DiscriminatedUnion]
+[Union]
 partial struct ParseError
 {
     interface Cases
@@ -130,7 +130,7 @@ Unions can be nested inside other types (note that the parent must also be `part
 ```csharp
 partial class/struct/record ParentType
 {
-    [DiscriminatedUnion]
+    [Union]
     partial struct ChildUnion
     {
         interface Cases
@@ -146,7 +146,7 @@ Because the union is generated from a `partial` type, this means that the type i
 
 For example one could easily add implicit cast operators to make the resulting code clean and compact:
 ```csharp
-[DiscriminatedUnion]
+[Union]
 public readonly partial struct Result<TOk, TErr>
 {
     interface Cases
@@ -179,7 +179,7 @@ public sealed partial class Username
         return new Username(username);
     }
 
-    [DiscriminatedUnion]
+    [Union]
     public readonly partial struct ParseError
     {
         interface Cases
@@ -246,7 +246,7 @@ It is not recommended to allow a union to be defaultable unless you have a good 
 ### Union as a recursive type
 One nice property of discriminated unions is they lend themselves nicely to type modeling. In the example below we build a JSON structure programmatically, then convert it to a displayable string (rewritten example from [this](http://book.realworldhaskell.org/read/writing-a-library-working-with-json-data.html) book):
 ```csharp
-[DiscriminatedUnion]
+[Union]
 public readonly partial struct JValue
 {
     interface Cases
