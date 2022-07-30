@@ -121,6 +121,8 @@ var readableErrorMessage = parseError.MatchWithDefault(
     TooLong: () => "Too long!");
 ```
 
+This method is only available if there is more than one case.
+
 It is strongly recommended to **not** use this as it takes away one of the biggest advantages of using a discriminated union in the first place, namely exhaustive matching. Only use this if you know what you're doing.
 
 ### Union nested inside another type
