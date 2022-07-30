@@ -213,7 +213,7 @@ It is advised to let the union be generated without any additional code first, t
 ### Union with default initialization
 Some unions need to be defaultable, e.g. `Option<T>` is a good candidate since one may want to use it as a replacement for `arg? = null` in a method argument list.
 
-Default initialization can be permitted by using the `AllowDefault` property on the `DiscriminatedUnion` attribute:
+Default initialization can be permitted by using the `AllowDefault` property on the `Union` attribute:
 ```csharp
 [Union(AllowDefault=true)]
 partial struct UnionWithDefault
