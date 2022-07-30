@@ -50,7 +50,7 @@ namespace nemuikoneko.DiscriminatedUnions
             return semanticModel.GetConstantValue(allowDefaultAttrArgNode.Expression).Value as bool?;
         }
 
-        internal static DiscriminatedUnionAttribute? GetUnionAttribute(this StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
+        internal static UnionAttribute? GetUnionAttribute(this StructDeclarationSyntax structDeclNode, SemanticModel semanticModel)
             => structDeclNode
                 .AttributeLists
                 .SelectMany(attrListNode => attrListNode.Attributes)
@@ -59,7 +59,7 @@ namespace nemuikoneko.DiscriminatedUnions
                 {
                     var allowDefaultAttrArg = GetAllowDefaultAttributeArgument(attrNode, semanticModel);
 
-                    return new DiscriminatedUnionAttribute
+                    return new UnionAttribute
                     {
                         AllowDefault = allowDefaultAttrArg ?? default
                     };

@@ -41,9 +41,9 @@ namespace nemuikoneko.DiscriminatedUnions
                 .ForEach(union => CodeGenerator.GenerateUnionSourceFile(context, union));
         }
 
-        private static List<(StructDeclarationSyntax node, DiscriminatedUnionAttribute attribute)> FindUnionDeclarationNodes(SyntaxTree syntaxTree, SemanticModel semanticModel)
+        private static List<(StructDeclarationSyntax node, UnionAttribute attribute)> FindUnionDeclarationNodes(SyntaxTree syntaxTree, SemanticModel semanticModel)
         {
-            var result = new List<(StructDeclarationSyntax, DiscriminatedUnionAttribute)>();
+            var result = new List<(StructDeclarationSyntax, UnionAttribute)>();
 
             syntaxTree.GetRoot()
                 .DescendantNodes()
@@ -65,7 +65,7 @@ namespace nemuikoneko.DiscriminatedUnions
         private static Union BuildUnion(
             SemanticModel model,
             StructDeclarationSyntax structDeclNode,
-            DiscriminatedUnionAttribute unionAttribute)
+            UnionAttribute unionAttribute)
         {
             var structDeclSymbol = model.GetDeclaredSymbol(structDeclNode) ?? throw new Exception("Failed to retrieve symbol for struct declaration");
 
@@ -145,7 +145,7 @@ namespace nemuikoneko.DiscriminatedUnions
             internal Union(
                 string name,
                 TypeInfo type,
-                DiscriminatedUnionAttribute attribute,
+                UnionAttribute attribute,
                 IReadOnlyList<UnionCase> cases)
             {
                 Name = name;
@@ -160,7 +160,7 @@ namespace nemuikoneko.DiscriminatedUnions
 
             internal TypeInfo Type { get; }
 
-            internal DiscriminatedUnionAttribute Attribute { get; }
+            internal UnionAttribute Attribute { get; }
         }
 
         internal readonly struct TypeInfo
