@@ -207,7 +207,8 @@ Do note that when we begin to match on the outcome the code may become a bit blo
 
 An alternative is to use a more functional approach by composing function calls using the monad pattern, which would significantly reduce the boilerplate and ensure type safety all the way through.
 
-**Important:** You should let the union be generated without any additional code first, then add your custom code to the type to avoid any problems with the generation.
+#### Important
+It is advised to let the union be generated without any additional code first, then adding your custom code to the type to avoid any problems with the generation. As mentioned above there seems to be some issues with using source generators in the mainstream IDEs at the moment.
 
 ### Union with default initialization
 Some unions need to be defaultable, e.g. `Option<T>` is a good candidate since one may want to use it as a replacement for `arg? = null` in a method argument list.
