@@ -300,5 +300,5 @@ var json = RenderJValue(jValue); // {name: "Robert", age: 45, nicknames: ["Bob",
 ```
 
 ## Release Notes
-### 1.0.0-beta
+### 1.0.0-alpha
 Basic functionality. Not yet stable.
