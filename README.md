@@ -215,7 +215,7 @@ Some unions need to be defaultable, e.g. `Option<T>` is a good candidate since o
 
 Default initialization can be permitted by using the `AllowDefault` property on the `DiscriminatedUnion` attribute:
 ```csharp
-[DiscriminatedUnion(AllowDefault=true)]
+[Union(AllowDefault=true)]
 partial struct UnionWithDefault
 {
     interface Cases
