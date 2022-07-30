@@ -13,6 +13,10 @@ Because C# source generators are a relatively new concept it is important to mak
 
 There also appears to be some sort of IDE caching bug in which sources are not properly generated as they should without reloading the project if using Jetbrains Rider, or a full IDE restart if using Visual Studio. This is very annoying but important to keep in mind after having created, updated or moved a union declaration. You don't necessarily implement union types that often and their use may very well warrant dealing with this annoyance for now.
 
+## Installation
+
+nuget release can be found [here](https://www.nuget.org/packages/nemuikoneko.DiscriminatedUnions/).
+
 ## Usage
 
 A union will only be generated when these criteria are met:
