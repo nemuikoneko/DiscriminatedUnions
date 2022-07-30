@@ -2,7 +2,7 @@
 
 namespace nemuikoneko.DiscriminatedUnions;
 
-public class UnionAttribute : Attribute
+public sealed class UnionAttribute : Attribute
 {
     public bool AllowDefault { get; set; }
 }
