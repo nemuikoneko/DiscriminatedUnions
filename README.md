@@ -105,6 +105,11 @@ The return type of `Match` in this example is inferred to be `string`.
 
 Do note that it is not possible to return `void`; this is done on purpose to adhere to the functional principle of always returning a value. To learn more about the reasons behind this, look up the empty tuple, better known as the "unit" value. There exist libraries that implement such a type in C#, or you can write it yourself with a few lines of code.
 
+#### Automatically filling in missing cases
+Because it is tedious to fill out all the cases yourself I've written a code fix provider that will do this for you. If you call the `Match()` method but leave some (or all) of the arguments out, you should receive a light bulb icon in your IDE that will implement all the cases for you automatically.
+
+Note that this only currently works for non-parameterized invocations, e.g. if you specify a concrete type parameter like `Match<string>()` the code fix provider is currently not able to handle this. So if you are for example coming back to add a missing case and the invocation is not inferring the type parameter but is explicitly stating it, you can temporarily remove it to activate this code fix. This is being tracked in [#27](https://github.com/nemuikoneko/DiscriminatedUnions/issues/27).
+
 ### Matching with default fallback
 Sometimes exhaustive matching is not desirable, e.g. if you only care about checking a few of the cases but don't care about the rest.
 
