@@ -11,7 +11,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 		<PackageId>nemuikoneko.DiscriminatedUnions</PackageId>
-		<PackageVersion>1.0.0-beta</PackageVersion>
+		<PackageVersion>1.0.0-alpha</PackageVersion>
 		<Description>C# source generator for creating discriminated unions.</Description>
 
 		<Authors>nemuikoneko</Authors>
