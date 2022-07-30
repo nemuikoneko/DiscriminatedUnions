@@ -10,7 +10,7 @@ namespace nemuikoneko.DiscriminatedUnions
     [Generator]
     public sealed class SourceGenerator : ISourceGenerator
     {
-        internal const string UnionAttributeName = "DiscriminatedUnion";
+        internal const string UnionAttributeName = "Union";
 
         public void Execute(GeneratorExecutionContext context)
         {
