@@ -286,7 +286,8 @@ namespace nemuikoneko.DiscriminatedUnions
                         return _typeSymbol.ToDisplayString(
                             new SymbolDisplayFormat(
                                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                                genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters));
+                                genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+                                globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included));
                     }
                 }
             }
