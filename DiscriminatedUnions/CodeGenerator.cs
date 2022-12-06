@@ -73,7 +73,8 @@ namespace nemuikoneko.DiscriminatedUnions
             var reformattedTypeName = union.Type.QualifiedName
                 .Replace('<', '_')
                 .Replace('>', '_')
-                .Replace(',', '_');
+                .Replace(',', '_')
+                .Replace("global::", string.Empty);
             var fileName = $"{reformattedTypeName}.g.cs";
 
             context.AddSource(fileName, source);
