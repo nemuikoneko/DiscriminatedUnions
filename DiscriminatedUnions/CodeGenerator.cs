@@ -95,7 +95,7 @@ namespace nemuikoneko.DiscriminatedUnions
 
         private static void AppendConstructor(IndentableStringBuilder sb, Union union)
         {
-            sb.Append($"private {union.Name}(Tag tag, object? data = null)");
+            sb.Append($"private {union.Name}(Tag tag, global::System.Object? data = null)");
             sb.Append("{");
             sb.Indent(() =>
             {
@@ -108,7 +108,7 @@ namespace nemuikoneko.DiscriminatedUnions
         private static void AppendFields(IndentableStringBuilder sb)
         {
             sb.Append("private readonly Tag _tag;");
-            sb.Append("private readonly object? _data;");
+            sb.Append("private readonly global::System.Object? _data;");
         }
 
         private static void AppendTagEnum(IndentableStringBuilder sb, Union union)
@@ -133,7 +133,7 @@ namespace nemuikoneko.DiscriminatedUnions
                 defaultMethodArgsToNull: false,
                 addDefaultMethodArg: false,
                 redirectToDefaultBranchIfCaseIsNull: false,
-                defaultCaseBody: "throw new System.ArgumentOutOfRangeException();");
+                defaultCaseBody: "throw new global::System.ArgumentOutOfRangeException();");
         }
 
         private static void AppendMatchWithDefaultMethod(IndentableStringBuilder sb, Union union)
@@ -163,7 +163,7 @@ namespace nemuikoneko.DiscriminatedUnions
                 var methodArgs = new List<string>();
 
                 if (addDefaultMethodArg)
-                    methodArgs.Add("System.Func<TResult> _");
+                    methodArgs.Add("global::System.Func<TResult> _");
 
                 methodArgs.AddRange(BuildMatchMethodArgs(union.Cases, defaultToNull: defaultMethodArgsToNull));
                 var lastMethodArg = methodArgs.Last();
@@ -196,7 +196,7 @@ namespace nemuikoneko.DiscriminatedUnions
             sb.Append("}");
         }
 
-        private static string BuildInterfaceImplementationList(Union union) => $"System.IEquatable<{union.Type.QualifiedName}>";
+        private static string BuildInterfaceImplementationList(Union union) => $"global::System.IEquatable<{union.Type.QualifiedName}>";
 
         private static string BuildTypeSpecificEqualsMethod(Union union)
         {
@@ -205,10 +205,10 @@ namespace nemuikoneko.DiscriminatedUnions
 
         private static string BuildGenericEqualsMethod(Union union)
         {
-            return $"public override bool Equals(object? obj) => obj is {union.Type.QualifiedName} other && Equals(other);";
+            return $"public override bool Equals(global::System.Object? obj) => obj is {union.Type.QualifiedName} other && Equals(other);";
         }
 
-        private static string BuildGetHashCodeMethod() => "public override int GetHashCode() => System.HashCode.Combine((int)_tag, _data);";
+        private static string BuildGetHashCodeMethod() => "public override int GetHashCode() => global::System.HashCode.Combine((int)_tag, _data);";
 
         private static string BuildEqualsOperatorMethod(Union union)
         {
@@ -227,7 +227,7 @@ namespace nemuikoneko.DiscriminatedUnions
             if (caseParams.Count > 0)
             {
                 var paramList = caseParams.Select(p => $"{p.Type} {p.Name}").Join(", ");
-                var data = $"System.ValueTuple.Create({caseParams.Select(p => p.Name).Join(", ")})";
+                var data = $"global::System.ValueTuple.Create({caseParams.Select(p => p.Name).Join(", ")})";
                 return $"public static {union.Type} {unionCase.Name}({paramList}) => new(Tag.{unionCase.Name}, {data});";
             }
             else
@@ -246,11 +246,11 @@ namespace nemuikoneko.DiscriminatedUnions
                 if (unionCase.Parameters.Count > 0)
                 {
                     var args = unionCase.Parameters.Select(p => p.Type.QualifiedName).Join(",");
-                    return $"System.Func<{args}, TResult>{nullableType} {unionCase.Name}{nullableDefault}";
+                    return $"global::System.Func<{args}, TResult>{nullableType} {unionCase.Name}{nullableDefault}";
                 }
                 else
                 {
-                    return $"System.Func<TResult>{nullableType} {unionCase.Name}{nullableDefault}";
+                    return $"global::System.Func<TResult>{nullableType} {unionCase.Name}{nullableDefault}";
                 }
             }).ToList();
         }
@@ -284,7 +284,7 @@ namespace nemuikoneko.DiscriminatedUnions
                     var caseHeader = $"case Tag.{unionCase.Name}:";
                     var caseBody = BuildCaseBody(new()
                     {
-                        $"var {dataVarName} = (System.ValueTuple<{castArgs}>)_data!;",
+                        $"var {dataVarName} = (global::System.ValueTuple<{castArgs}>)_data!;",
                         $"return {unionCase.Name}({extractArgs});"
                     });
 
