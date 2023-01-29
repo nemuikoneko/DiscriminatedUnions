@@ -307,3 +307,6 @@ var json = RenderJValue(jValue); // {name: "Robert", age: 45, nicknames: ["Bob",
 ## Release Notes
 ### 1.0.0-alpha
 Basic functionality. Not yet stable.
+
+### 1.0.0-alpha2
+Fixed critical [bug](https://github.com/nemuikoneko/DiscriminatedUnions/issues/36).
